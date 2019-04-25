@@ -52,6 +52,7 @@ public class DiscordService implements AutoCloseable
 	private final RuneLiteProperties runeLiteProperties;
 	private final ScheduledExecutorService executorService;
 	private final DiscordRPC discordRPC;
+	public static boolean penguin;
 
 	// Hold a reference to the event handlers to prevent the garbage collector from deleting them
 	private final DiscordEventHandlers discordEventHandlers;
@@ -106,7 +107,8 @@ public class DiscordService implements AutoCloseable
 		discordEventHandlers.joinGame = this::joinGame;
 		discordEventHandlers.spectateGame = this::spectateGame;
 		discordEventHandlers.joinRequest = this::joinRequest;
-		discordRPC.Discord_Initialize(runeLiteProperties.getDiscordAppId(), discordEventHandlers, true, null);
+		discordRPC.Discord_Initialize(penguin ? "560962933182562314" : "565193793499037725", discordEventHandlers, true
+				, null);
 		executorService.scheduleAtFixedRate(discordRPC::Discord_RunCallbacks, 0, 2, TimeUnit.SECONDS);
 	}
 
@@ -146,9 +148,7 @@ public class DiscordService implements AutoCloseable
 		discordRichPresence.endTimestamp = discordPresence.getEndTimestamp() != null
 			? discordPresence.getEndTimestamp().getEpochSecond()
 			: 0;
-		discordRichPresence.largeImageKey = Strings.isNullOrEmpty(discordPresence.getLargeImageKey())
-			? "default"
-			: discordPresence.getLargeImageKey();
+		discordRichPresence.largeImageKey = "pklite";
 		discordRichPresence.largeImageText = discordPresence.getLargeImageText();
 
 		if (!Strings.isNullOrEmpty(discordPresence.getSmallImageKey()))

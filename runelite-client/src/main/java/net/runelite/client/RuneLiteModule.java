@@ -60,11 +60,13 @@ public class RuneLiteModule extends AbstractModule
 {
 	private final ClientUpdateCheckMode updateCheckMode;
 	private final boolean developerMode;
+	private final boolean dumpClasses;
 
-	public RuneLiteModule(final ClientUpdateCheckMode updateCheckMode, final boolean developerMode)
+	public RuneLiteModule(final ClientUpdateCheckMode updateCheckMode, final boolean developerMode, final boolean dumpClasses)
 	{
 		this.updateCheckMode = updateCheckMode;
 		this.developerMode = developerMode;
+		this.dumpClasses = dumpClasses;
 	}
 
 	@Override
@@ -72,6 +74,7 @@ public class RuneLiteModule extends AbstractModule
 	{
 		bindConstant().annotatedWith(Names.named("updateCheckMode")).to(updateCheckMode);
 		bindConstant().annotatedWith(Names.named("developerMode")).to(developerMode);
+		bindConstant().annotatedWith(Names.named("dumpClasses")).to(dumpClasses);
 		bind(ScheduledExecutorService.class).toInstance(new ExecutorServiceExceptionLogger(Executors.newSingleThreadScheduledExecutor()));
 		bind(OkHttpClient.class).toInstance(RuneLiteAPI.CLIENT);
 		bind(MenuManager.class);
