@@ -34,6 +34,7 @@ import net.runelite.api.Client;
 import net.runelite.api.Player;
 import net.runelite.api.Point;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.PlayerWealthManager;
 import net.runelite.client.plugins.friendtagging.FriendTaggingPlugin;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -41,6 +42,7 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
 import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.util.PvPUtil;
 
 @Singleton
 public class PlayerIndicatorsMinimapOverlay extends Overlay
@@ -51,6 +53,8 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 		"skull.png");
 	@Inject
 	private ItemManager itemManager;
+	@Inject
+	PlayerWealthManager playerWealthManager;
 	@Inject
 	private Client client;
 
@@ -93,7 +97,7 @@ public class PlayerIndicatorsMinimapOverlay extends Overlay
 				{
 					if (config.showCombatLevel())
 					{
-						name += "-(" + actor.getCombatLevel() + ")";
+						name += "-(" + actor.getCombatLevel() + playerWealthManager.getPlayerWealth(actor) + ")";
 					}
 				}
 				if (config.drawMinimapNames())

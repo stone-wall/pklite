@@ -28,13 +28,18 @@ import java.awt.image.BufferedImage;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.swing.SwingUtilities;
+import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.Client;
 import net.runelite.api.MenuAction;
+import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.client.config.ChatColorConfig;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.config.RuneLiteConfig;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.events.PluginChanged;
+import net.runelite.client.game.PlayerWealthManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
@@ -44,7 +49,9 @@ import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.util.PvPUtil;
 
+@Slf4j
 @PluginDescriptor(
 	name = "Configuration",
 	loadWhenOutdated = true,
@@ -62,6 +69,9 @@ public class ConfigPlugin extends Plugin
 	private ConfigManager configManager;
 
 	@Inject
+	Client client;
+
+	@Inject
 	private PluginManager pluginManager;
 
 	@Inject
@@ -72,6 +82,9 @@ public class ConfigPlugin extends Plugin
 
 	@Inject
 	private ChatColorConfig chatColorConfig;
+
+	@Inject
+	PlayerWealthManager playerWealthManager;
 
 	private ConfigPanel configPanel;
 	private NavigationButton navButton;
@@ -103,6 +116,22 @@ public class ConfigPlugin extends Plugin
 	public void onPluginChanged(PluginChanged event)
 	{
 		SwingUtilities.invokeLater(configPanel::refreshPluginList);
+	}
+
+	@Subscribe
+	public void onGameTick(GameTick event)
+	{
+		client.getPlayers().forEach(player ->
+		{
+			//log.info(String.valueOf(playerWealthManager.updatePlayerWealth(player, client)));
+			//log.info(String.valueOf(playerWealthManager.getPlayerWealth(player)));
+		});
+	}
+
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged event)
+	{
+		playerWealthManager.wealthMap.clear();
 	}
 
 	@Subscribe

@@ -53,6 +53,7 @@ import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.game.ClanManager;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.LootManager;
+import net.runelite.client.game.PlayerWealthManager;
 import net.runelite.client.game.chatbox.ChatboxPanelManager;
 import net.runelite.client.menus.MenuManager;
 import net.runelite.client.plugins.Plugin;
@@ -118,6 +119,9 @@ public class RuneLite
 
 	@Inject
 	private Provider<ItemManager> itemManager;
+
+	@Inject
+	private Provider<PlayerWealthManager> playerWealthManager;
 
 	@Inject
 	private Provider<OverlayRenderer> overlayRenderer;
@@ -288,6 +292,7 @@ public class RuneLite
 			eventBus.register(overlayRenderer.get());
 			eventBus.register(clanManager.get());
 			eventBus.register(itemManager.get());
+			eventBus.register(playerWealthManager.get());
 			eventBus.register(menuManager.get());
 			eventBus.register(chatMessageManager.get());
 			eventBus.register(commandManager.get());

@@ -10,16 +10,23 @@
 package net.runelite.client.util;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.InventoryID;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
+import net.runelite.api.ItemID;
 import net.runelite.api.Player;
+import net.runelite.api.PlayerComposition;
 import net.runelite.api.Varbits;
 import net.runelite.api.WorldType;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.kit.KitType;
 import net.runelite.client.game.ItemManager;
 import static net.runelite.client.util.StackFormatter.quantityToRSDecimalStack;
 import org.apache.commons.lang3.ArrayUtils;
@@ -27,8 +34,16 @@ import org.apache.commons.lang3.ArrayUtils;
 /**
  *
  */
+@Slf4j
 public class PvPUtil
 {
+
+
+
+
+
+
+
 
 	/**
 	 * Gets the wilderness level based on a world point
