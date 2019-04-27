@@ -72,16 +72,22 @@ public class PvPUtil
 		int wildernessLevel = 0;
 		if (!(client.getVar(Varbits.IN_WILDERNESS) == 1 || WorldType.isPvpWorld(client.getWorldType())))
 		{
+			log.info(String.valueOf(client.getVar(Varbits.IN_WILDERNESS)));
 			return false;
 		}
 		if (WorldType.isPvpWorld(client.getWorldType()))
 		{
 			if (client.getVar(Varbits.IN_WILDERNESS) != 1)
 			{
+				log.info(String.valueOf(WorldType.isPvpWorld(client.getWorldType())));
+
 				return Math.abs(client.getLocalPlayer().getCombatLevel() - player.getCombatLevel()) <= 15;
 			}
 			wildernessLevel = 15;
 		}
+		log.info(String.valueOf(Math.abs(client.getLocalPlayer().getCombatLevel() - player.getCombatLevel())));
+		log.info(String.valueOf(getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation()) + wildernessLevel));
+
 		return Math.abs(client.getLocalPlayer().getCombatLevel() - player.getCombatLevel())
 			< (getWildernessLevelFrom(client.getLocalPlayer().getWorldLocation())+ wildernessLevel);
 	}
