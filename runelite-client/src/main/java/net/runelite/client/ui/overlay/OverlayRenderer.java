@@ -37,6 +37,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.swing.SwingUtilities;
+import lombok.Getter;
+import lombok.Setter;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuAction;
@@ -85,6 +87,9 @@ public class OverlayRenderer extends MouseAdapter implements KeyListener
 	private boolean chatboxHidden;
 	private boolean isResizeable;
 	private OverlayBounds snapCorners;
+
+	@Getter @Setter
+	private OverlayRenderingState overlayRenderingState = OverlayRenderingState.RENDER_ALL;
 
 	@Inject
 	private OverlayRenderer(
@@ -147,6 +152,17 @@ public class OverlayRenderer extends MouseAdapter implements KeyListener
 
 	public void render(Graphics2D graphics, final OverlayLayer layer)
 	{
+		if (this.overlayRenderingState.equals(OverlayRenderingState.NONE))
+		{
+			return;
+		}
+
+		if (this.overlayRenderingState.equals(OverlayRenderingState.RENDER_SCREENSHOT) &&
+			!layer.equals(OverlayLayer.SCREENSHOT))
+		{
+			return;
+		}
+
 		if (layer != OverlayLayer.ABOVE_MAP
 			&& client.getWidget(WidgetInfo.FULLSCREEN_MAP_ROOT) != null
 			&& !client.getWidget(WidgetInfo.FULLSCREEN_MAP_ROOT).isHidden())
@@ -281,6 +297,7 @@ public class OverlayRenderer extends MouseAdapter implements KeyListener
 				}
 			}
 		}
+		this.setOverlayRenderingState(OverlayRenderingState.RENDER_ALL);
 	}
 
 	@Override

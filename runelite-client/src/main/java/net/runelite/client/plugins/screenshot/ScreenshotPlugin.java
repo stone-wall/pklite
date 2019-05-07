@@ -94,6 +94,8 @@ import net.runelite.client.ui.ClientUI;
 import net.runelite.client.ui.DrawManager;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.OverlayRenderer;
+import net.runelite.client.ui.overlay.OverlayRenderingState;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.Text;
@@ -156,6 +158,9 @@ public class ScreenshotPlugin extends Plugin
 
 	@Inject
 	private OverlayManager overlayManager;
+
+	@Inject
+	private OverlayRenderer overlayRenderer;
 
 	@Inject
 	private ScreenshotOverlay screenshotOverlay;
@@ -581,10 +586,18 @@ public class ScreenshotPlugin extends Plugin
 
 		if (config.displayDate())
 		{
+			if (config.hideOverlays())
+			{
+				overlayRenderer.setOverlayRenderingState(OverlayRenderingState.RENDER_SCREENSHOT);
+			}
 			screenshotOverlay.queueForTimestamp(imageCallback);
 		}
 		else
 		{
+			if (config.hideOverlays())
+			{
+				overlayRenderer.setOverlayRenderingState(OverlayRenderingState.NONE);
+			}
 			drawManager.requestNextFrameListener(imageCallback);
 		}
 	}
@@ -642,6 +655,10 @@ public class ScreenshotPlugin extends Plugin
 			playerFolder = SCREENSHOT_DIR;
 		}
 
+		if (!overlayRenderer.getOverlayRenderingState().equals(OverlayRenderingState.RENDER_ALL))
+		{
+			overlayRenderer.setOverlayRenderingState(OverlayRenderingState.RENDER_ALL);
+		}
 		playerFolder.mkdirs();
 
 		try

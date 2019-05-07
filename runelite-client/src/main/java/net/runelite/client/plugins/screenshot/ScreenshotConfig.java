@@ -197,4 +197,15 @@ public interface ScreenshotConfig extends Config
 	{
 		return Keybind.NOT_SET;
 	}
+
+	@ConfigItem(
+		keyName = "hideOverlays",
+		name = "Hide Overlays",
+		description = "Configures if overlays are hidden from screenshots",
+		position = 15
+	)
+	default boolean hideOverlays()
+	{
+		return true;
+	}
 }
