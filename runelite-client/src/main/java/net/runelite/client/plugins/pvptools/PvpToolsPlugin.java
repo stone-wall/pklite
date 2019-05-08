@@ -54,7 +54,6 @@ import net.runelite.client.plugins.clanchat.ClanChatPlugin;
 import static net.runelite.client.plugins.pvptools.PvpToolsPanel.htmlLabel;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
-import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.PvPUtil;
@@ -69,9 +68,7 @@ import org.apache.commons.lang3.ArrayUtils;
 )
 public class PvpToolsPlugin extends Plugin
 {
-	@Inject
-	PvpToolsOverlay pvpToolsOverlay;
-	boolean fallinHelperEnabled = false;
+
 	private PvpToolsPanel panel;
 	private MissingPlayersJFrame missingPlayersJFrame;
 	private CurrentPlayersJFrame currentPlayersJFrame;
@@ -82,8 +79,6 @@ public class PvpToolsPlugin extends Plugin
 	@Getter(AccessLevel.PACKAGE)
 	@Setter(AccessLevel.PACKAGE)
 	private boolean hideAll;
-	@Inject
-	private OverlayManager overlayManager;
 	@Inject
 	private Client client;
 	@Inject
@@ -160,7 +155,7 @@ public class PvpToolsPlugin extends Plugin
 	 *
 	 * @return CopyOnWriteArrayList<String> of missing cc member names and current worlds
 	 */
-	private List getMissingMembers()
+	private CopyOnWriteArrayList<String> getMissingMembers()
 	{
 		CopyOnWriteArrayList<Player> ccMembers = ClanChatPlugin.getClanMembers();
 		CopyOnWriteArrayList<String> missingMembers = new CopyOnWriteArrayList<>();
@@ -183,7 +178,7 @@ public class PvpToolsPlugin extends Plugin
 		return missingMembers;
 	}
 
-	private List getCurrentMembers()
+	private CopyOnWriteArrayList<String> getCurrentMembers()
 	{
 		CopyOnWriteArrayList<Player> ccMembers = ClanChatPlugin.getClanMembers();
 		CopyOnWriteArrayList<String> currentMembers = new CopyOnWriteArrayList<>();
@@ -216,7 +211,6 @@ public class PvpToolsPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		overlayManager.add(pvpToolsOverlay);
 		keyManager.registerKeyListener(renderselfHotkeyListener);
 		final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "skull.png");
 		panel = new PvpToolsPanel();
@@ -246,7 +240,6 @@ public class PvpToolsPlugin extends Plugin
 	@Override
 	protected void shutDown() throws Exception
 	{
-		overlayManager.remove(pvpToolsOverlay);
 		keyManager.unregisterKeyListener(renderselfHotkeyListener);
 		clientToolbar.removeNavigation(navButton);
 	}
@@ -372,21 +365,21 @@ public class PvpToolsPlugin extends Plugin
 			{
 				if (config.attackOptionsFriend() && player.isFriend())
 				{
-					moveEntry(target);
+					moveEntry();
 				}
 				if (config.attackOptionsClan() && player.isClanMember())
 				{
-					moveEntry(target);
+					moveEntry();
 				}
 				if (config.levelRangeAttackOptions() && !PvPUtil.isAttackable(client, player))
 				{
-					moveEntry(target);
+					moveEntry();
 				}
 			}
 		}
 	}
 
-	private void moveEntry(String mtarget)
+	private void moveEntry()
 	{
 		MenuEntry[] menuEntries = client.getMenuEntries();
 		MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
