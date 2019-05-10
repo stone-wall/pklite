@@ -50,7 +50,8 @@ public class PlayerIndicatorsService
 	public void forEachPlayer(final BiConsumer<Player, Color> consumer)
 	{
 		if (!config.highlightOwnPlayer() && !config.drawClanMemberNames()
-			&& !config.highlightFriends() && !config.highlightNonClanMembers())
+			&& !config.highlightFriends() && !config.highlightNonClanMembers() && !config.highlightTargets()
+		&& !config.highlightPile() && !config.highlightCallers() && !config.highlightTeamMembers())
 		{
 			return;
 		}
@@ -81,7 +82,8 @@ public class PlayerIndicatorsService
 			{
 				consumer.accept(player, config.getClanMemberColor());
 			}
-			else if (config.highlightTeamMembers() && localPlayer.getTeam() > 0 && localPlayer.getTeam() == player.getTeam())
+			else if (config.highlightTeamMembers() && localPlayer.getTeam() > 0 &&
+				localPlayer.getTeam() == player.getTeam())
 			{
 				consumer.accept(player, config.getTeamMemberColor());
 			}
@@ -89,8 +91,8 @@ public class PlayerIndicatorsService
 			{
 				consumer.accept(player, config.getNonClanMemberColor());
 			}
-			else if (config.highlightTargets() && PvPUtil.isAttackable(client, player) && !client.isFriended(player.getName(), false) &&
-					!player.isClanMember())
+			else if (config.highlightTargets() && PvPUtil.isAttackable(client, player) &&
+				!client.isFriended(player.getName(), false) && !player.isClanMember())
 			{
 			    if (config.skulledTargetsOnly() && player.getSkullIcon() != null)
                 {
@@ -105,7 +107,8 @@ public class PlayerIndicatorsService
 			{
 				consumer.accept(player, config.callerColor());
 			}
-			if (config.highlightPile() && PvPUtil.isAttackable(client, player) && playerIndicatorsPlugin.isPile(player) && !player.isClanMember())
+			if (config.highlightPile() && playerIndicatorsPlugin.isPile(player)
+				&& !player.isClanMember())
 			{
 				consumer.accept(player, config.pileColor());
 			}

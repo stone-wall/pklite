@@ -1604,4 +1604,8 @@ public interface Client extends GameEngine
 	void draw2010Menu();
 
 	NodeCache getHealthBarCache();
+	
+	void toggleRenderSelf();
+
+	MouseRecorder getMouseRecorder();
 }
