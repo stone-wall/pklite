@@ -1,11 +1,38 @@
-/*
- * Copyright (c) 2019. PKLite  - All Rights Reserved
- * Unauthorized modification, distribution, or possession of this source file, via any medium is strictly prohibited.
- * Proprietary and confidential. Refer to PKLite License file for more information on
- * full terms of this copyright and to determine what constitutes authorized use.
- * Written by PKLite(ST0NEWALL, others) <stonewall@thots.cc.usa>, 2019
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
  *
- */
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
 
 package net.runelite.client.plugins.pvptools;
 
@@ -13,14 +40,12 @@ import com.google.inject.Provides;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.AccessLevel;
@@ -35,6 +60,7 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
 import net.runelite.api.SkullIcon;
+import net.runelite.api.SpriteID;
 import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.FocusChanged;
 import net.runelite.api.events.GameStateChanged;
@@ -45,17 +71,15 @@ import net.runelite.api.events.PlayerSpawned;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.AsyncBufferedImage;
-import net.runelite.client.game.ClanManager;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.SpriteManager;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.plugins.clanchat.ClanChatPlugin;
 import static net.runelite.client.plugins.pvptools.PvpToolsPanel.htmlLabel;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
-import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.PvPUtil;
@@ -70,9 +94,7 @@ import org.apache.commons.lang3.ArrayUtils;
 )
 public class PvpToolsPlugin extends Plugin
 {
-	@Inject
-	PvpToolsOverlay pvpToolsOverlay;
-	boolean fallinHelperEnabled = false;
+
 	private PvpToolsPanel panel;
 	private MissingPlayersJFrame missingPlayersJFrame;
 	private CurrentPlayersJFrame currentPlayersJFrame;
@@ -83,10 +105,6 @@ public class PvpToolsPlugin extends Plugin
 	@Getter(AccessLevel.PACKAGE)
 	@Setter(AccessLevel.PACKAGE)
 	private boolean hideAll;
-	@Inject
-	private ScheduledExecutorService executorService;
-	@Inject
-	private OverlayManager overlayManager;
 	@Inject
 	private Client client;
 	@Inject
@@ -114,6 +132,9 @@ public class PvpToolsPlugin extends Plugin
 		}
 	};
 
+	/**
+	 * ActionListener for currentPlayers button
+	 */
 	final ActionListener currentPlayersActionListener = new ActionListener()
 	{
 		@Override
@@ -143,25 +164,11 @@ public class PvpToolsPlugin extends Plugin
 	private PvpToolsConfig config;
 
 	@Inject
-	private PluginManager pluginManager;
+	private SpriteManager spriteManager;
 
-	@Inject
-	private ClanManager clanManager;
-
-
-	private ClanChatPlugin clanChatPlugin;
-	
 	/**
-	 * The HotKeyListener for the hot key assigned in the config that triggers the Fall In Helper feature
+	 * HotKeyListener for assigned hotkey to toggle renderself
 	 */
-	private final HotkeyListener fallinHotkeyListener = new HotkeyListener(() -> config.hotkey())
-	{
-		public void hotkeyPressed()
-		{
-			toggleFallinHelper();
-		}
-	};
-	
 	private final HotkeyListener renderselfHotkeyListener = new HotkeyListener(() -> config.renderSelf())
 	{
 		public void hotkeyPressed()
@@ -170,29 +177,26 @@ public class PvpToolsPlugin extends Plugin
 		}
 	};
 
-	private int[] overheadCount = new int[]{0, 0, 0};
-
-	private Comparator<Item> itemPriceComparator = new Comparator<Item>()
-	{
-		@Override
-		public int compare(Item o1, Item o2)
+	private int[] overheadCount = new int[]
 		{
-			return (itemManager.getItemPrice(itemManager.getItemComposition(o1.getId()).getPrice())
-				- itemManager.getItemPrice(itemManager.getItemComposition(o2.getId()).getPrice()));
-		}
-	};
+			0, 0, 0
+		};
 
-	private String mtarget;
-
-	public List getMissingMembers()
+	/**
+	 * Generates list for Missing CC Members UI
+	 *
+	 * @return CopyOnWriteArrayList<String> of missing cc member names and current worlds
+	 */
+	private CopyOnWriteArrayList<String> getMissingMembers()
 	{
 		CopyOnWriteArrayList<Player> ccMembers = ClanChatPlugin.getClanMembers();
-		ArrayList missingMembers = new ArrayList();
-		for (ClanMember clanMember:client.getClanMembers())
+		CopyOnWriteArrayList<String> missingMembers = new CopyOnWriteArrayList<>();
+		for (ClanMember clanMember : client.getClanMembers())
 		{
 			if (!Objects.isNull(clanMember))
 			{
-				List<String> arrayList = ccMembers.stream().map(player -> Text.removeTags(Text.standardize(player.getName()))).collect(Collectors.toList());
+				List<String> arrayList = ccMembers.stream().map(player ->
+					Text.removeTags(Text.standardize(player.getName()))).collect(Collectors.toList());
 				if (!arrayList.contains(Text.removeTags(Text.standardize(clanMember.getUsername()))))
 				{
 					if (!missingMembers.contains(clanMember.getUsername()))
@@ -204,16 +208,18 @@ public class PvpToolsPlugin extends Plugin
 		}
 
 		return missingMembers;
-
-			//Arrays.stream(Arrays.stream(client.getClanMembers()).filter(Objects::nonNull).map(ClanMember::getUsername)
-			//.toArray()).collect(Collectors.toList());
 	}
 
-	public List getCurrentMembers()
+	/**
+	 * Generates list for Current CC Members UI
+	 *
+	 * @return CopyOnWriteArrayList<String> of cc member names that are in current scene
+	 */
+	private CopyOnWriteArrayList<String> getCurrentMembers()
 	{
 		CopyOnWriteArrayList<Player> ccMembers = ClanChatPlugin.getClanMembers();
-		ArrayList currentMembers = new ArrayList();
-		for (ClanMember clanMember:client.getClanMembers())
+		CopyOnWriteArrayList<String> currentMembers = new CopyOnWriteArrayList<>();
+		for (ClanMember clanMember : client.getClanMembers())
 		{
 			if (!Objects.isNull(clanMember))
 			{
@@ -229,11 +235,7 @@ public class PvpToolsPlugin extends Plugin
 		}
 
 		return currentMembers;
-
-		//Arrays.stream(Arrays.stream(client.getClanMembers()).filter(Objects::nonNull).map(ClanMember::getUsername)
-		//.toArray()).collect(Collectors.toList());
 	}
-
 
 
 	@Provides
@@ -245,28 +247,19 @@ public class PvpToolsPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-
-		overlayManager.add(pvpToolsOverlay);
-
-		keyManager.registerKeyListener(fallinHotkeyListener);
 		keyManager.registerKeyListener(renderselfHotkeyListener);
 		final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "skull.png");
-
 		panel = new PvpToolsPanel();
 		panel.init();
-
 		navButton = NavigationButton.builder()
 			.tooltip("PvP Tools")
 			.icon(icon)
 			.priority(5)
 			.panel(panel)
 			.build();
-
 		panel.missingPlayers.addActionListener(playersButtonActionListener);
 		panel.currentPlayers.addActionListener(currentPlayersActionListener);
 		clientToolbar.addNavigation(navButton);
-
-
 		if (config.missingPlayersEnabled())
 		{
 			panel.missingPlayers.setVisible(true);
@@ -281,8 +274,6 @@ public class PvpToolsPlugin extends Plugin
 	@Override
 	protected void shutDown() throws Exception
 	{
-		overlayManager.remove(pvpToolsOverlay);
-		keyManager.unregisterKeyListener(fallinHotkeyListener);
 		keyManager.unregisterKeyListener(renderselfHotkeyListener);
 		clientToolbar.removeNavigation(navButton);
 	}
@@ -295,30 +286,18 @@ public class PvpToolsPlugin extends Plugin
 			switch (configChanged.getKey())
 			{
 				case "countPlayers":
-					if (config.countPlayers())
-					{
-						updatePlayers();
-					}
 					if (!config.countPlayers())
 					{
 						panel.disablePlayerCount();
 					}
 					break;
 				case "countOverHeads":
-					if (config.countOverHeads())
-					{
-						countOverHeads();
-					}
 					if (!config.countOverHeads())
 					{
 						panel.disablePrayerCount();
 					}
 					break;
 				case "riskCalculator":
-					if (config.riskCalculatorEnabled())
-					{
-						getCarriedWealth();
-					}
 					if (!config.riskCalculatorEnabled())
 					{
 						panel.disableRiskCalculator();
@@ -395,80 +374,56 @@ public class PvpToolsPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onMenuEntryAdded(MenuEntryAdded menuEntryAdded)
+	public void onMenuEntryAdded(MenuEntryAdded event)
 	{
-			if (config.attackOptionsFriend() || config.attackOptionsClan() || config.levelRangeAttackOptions())
+		if (config.attackOptionsFriend() || config.attackOptionsClan() || config.levelRangeAttackOptions())
+		{
+			if (client.getGameState() != GameState.LOGGED_IN)
 			{
-				if (client.getGameState() != GameState.LOGGED_IN)
+				return;
+			}
+			Player[] players = client.getCachedPlayers();
+			Player player = null;
+			int identifier = event.getIdentifier();
+			if (identifier >= 0 && identifier < players.length)
+			{
+				player = players[identifier];
+			}
+			if (player == null)
+			{
+				return;
+			}
+			if (attackHotKeyPressed && config.attackOptionsClan() || config.attackOptionsFriend() ||
+				config.levelRangeAttackOptions())
+			{
+				if (config.attackOptionsFriend() && player.isFriend())
 				{
-					return;
+					moveEntry();
 				}
-				Player[] players = client.getCachedPlayers();
-				Player player = null;
-				int identifier = menuEntryAdded.getIdentifier();
-				if (identifier >= 0 && identifier < players.length)
+				if (config.attackOptionsClan() && player.isClanMember())
 				{
-					player = players[identifier];
+					moveEntry();
 				}
-				if (player == null)
+				if (config.levelRangeAttackOptions() && !PvPUtil.isAttackable(client, player))
 				{
-					return;
-				}
-				final String option = Text.removeTags(menuEntryAdded.getOption()).toLowerCase();
-				final String mtarget = Text.removeTags(menuEntryAdded.getTarget()).toLowerCase();
-				if (attackHotKeyPressed && config.attackOptionsClan() || config.attackOptionsFriend() ||
-					config.levelRangeAttackOptions())
-				{
-					if (config.attackOptionsFriend() && player.isFriend())
-					{
-						moveEntry(mtarget);
-					}
-					if (config.attackOptionsClan() && player.isClanMember())
-					{
-						moveEntry(mtarget);
-					}
-					if (config.levelRangeAttackOptions() && !PvPUtil.isAttackable(client, player))
-					{
-						moveEntry(mtarget);
-					}
+					moveEntry();
 				}
 			}
+		}
 	}
 
-	private void moveEntry(String mtarget)
+	private void moveEntry()
 	{
-		this.mtarget = mtarget;
 		MenuEntry[] menuEntries = client.getMenuEntries();
 		MenuEntry lastEntry = menuEntries[menuEntries.length - 1];
 
-		// strip out existing <col...
-		String target = lastEntry.getTarget();
-		int idx = target.indexOf('>');
-		if (idx != -1)
-		{
-			target = target.substring(idx + 1);
-		}
-        /*System.out.println("Contents : " + lastEntry.getTarget());
-        System.out.println("Contents : " + lastEntry.getIdentifier());
-        System.out.println("Contents : " + lastEntry.getOption());
-		System.out.println("length : " + menuEntries.length);*/
-		if (menuEntries[menuEntries.length - 1] != null)
-		{
-			//System.out.println(menuEntries.length + ": " + menuEntries[menuEntries.length-1]);
-		}
 		if (lastEntry.getOption().contains("attack".toLowerCase()))
 		{
 			ArrayUtils.shift(menuEntries, 1);
-			//ArrayUtils.add(menuEntries, menuEntries.length - 2);
-			//menuEntries = ArrayUtils.remove(menuEntries, menuEntries.length - 1);
-			//menuEntrySwapperPlugin.swap("attack", option, mtarget, false);
 		}
 		if (lastEntry.getOption().equals("Attack"))
 		{
 			ArrayUtils.shift(menuEntries, 1);
-
-			//menuEntries = ArrayUtils.sremove(menuEntries, menuEntries.length - 1);
-			//menuEntrySwapperPlugin.swap("attack", option, mtarget, false);
 		}
 		client.setMenuEntries(menuEntries);
 
@@ -484,40 +439,24 @@ public class PvpToolsPlugin extends Plugin
 	}
 
 	/**
-	 * Enables or disables the fall in helper feature
-	 */
-	private void toggleFallinHelper()
-	{
-		if (!fallinHelperEnabled)
-		{
-			client.setIsHidingEntities(true);
-			client.setPlayersHidden(true);
-			fallinHelperEnabled = true;
-		}
-		else
-		{
-			client.setIsHidingEntities(false);
-			client.setPlayersHidden(false);
-			fallinHelperEnabled = false;
-		}
-
-	}
-
-	/**
 	 * Updates the PvP Tools panel with the numbers for enemy protection prayers
 	 */
 	private void updatePrayerNumbers()
 	{
-		panel.numMageJLabel.setText(htmlLabel("Enemies Praying Mage: ", String.valueOf(overheadCount[0])));
-		panel.numRangeJLabel.setText(htmlLabel("Enemies Praying Range: ", String.valueOf(overheadCount[1])));
-		panel.numMeleeJLabel.setText(htmlLabel("Enemies Praying Melee: ", String.valueOf(overheadCount[2])));
+		spriteManager.addSpriteTo(panel.numMageJLabel, SpriteID.PRAYER_PROTECT_FROM_MAGIC, 0);
+		spriteManager.addSpriteTo(panel.numRangeJLabel, SpriteID.PRAYER_PROTECT_FROM_MISSILES, 0);
+		spriteManager.addSpriteTo(panel.numMeleeJLabel, SpriteID.PRAYER_PROTECT_FROM_MELEE, 0);
+
+		panel.numMageJLabel.setText(htmlLabel(": ", String.valueOf(overheadCount[0])));
+		panel.numRangeJLabel.setText(htmlLabel(": ", String.valueOf(overheadCount[1])));
+		panel.numMeleeJLabel.setText(htmlLabel(": ", String.valueOf(overheadCount[2])));
 		panel.numMageJLabel.repaint();
 		panel.numRangeJLabel.repaint();
 		panel.numMeleeJLabel.repaint();
 	}
 
 	/**
-	 *
+	 * Updates the count of nearby players that are and aren't in cc
 	 */
 	private void updatePlayers()
 	{
@@ -550,6 +489,9 @@ public class PvpToolsPlugin extends Plugin
 		}
 	}
 
+	/**
+	 * Updates the count of overhead prayers for players that aren't in cc and aren't attackable
+	 */
 	private void countOverHeads()
 	{
 		overheadCount = new int[]{0, 0, 0};

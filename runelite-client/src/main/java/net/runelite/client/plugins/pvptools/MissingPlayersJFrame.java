@@ -1,46 +1,60 @@
-/*
- * Copyright (c) 2019. PKLite  - All Rights Reserved
- * Unauthorized modification, distribution, or possession of this source file, via any medium is strictly prohibited.
- * Proprietary and confidential. Refer to PKLite License file for more information on
- * full terms of this copyright and to determine what constitutes authorized use.
- * Written by PKLite(ST0NEWALL, others) <stonewall@thots.cc.usa>, 2019
+
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
  *
- */
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
 
 package net.runelite.client.plugins.pvptools;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import net.runelite.api.ClanMember;
 import net.runelite.api.Client;
 import net.runelite.client.ui.FontManager;
 
 public class MissingPlayersJFrame extends JFrame
 {
 
-	public JList missingPlayersJList;
+	private final JList missingPlayersJList;
 
 	MissingPlayersJFrame(Client client, PvpToolsPlugin pvpToolsPlugin, List<String> list)
 	{
 		super();
 		int x = client.getCanvas().getLocationOnScreen().x + client.getCanvas().getWidth();
 		int y = client.getCanvas().getLocationOnScreen().y;
-		JPanel scrollConatiner = new JPanel(new BorderLayout());
+		JPanel scrollContainer = new JPanel(new BorderLayout());
 
-		JScrollPane jScrollPane = new JScrollPane(scrollConatiner);
+		JScrollPane jScrollPane = new JScrollPane(scrollContainer);
 		JButton refreshJButton = new JButton("Refresh");
 		refreshJButton.addActionListener(pvpToolsPlugin.playersButtonActionListener);
 		JButton copyJButton = new JButton("Copy List");
@@ -64,12 +78,12 @@ public class MissingPlayersJFrame extends JFrame
 		JLabel titleLabel = new JLabel("Missing CC Members");
 		titleLabel.setFont(FontManager.getRunescapeFont().deriveFont(Font.BOLD, 18));
 		missingPlayersJList.setFont(new Font("Arial", Font.PLAIN, 14));
-		scrollConatiner.add(refreshJButton, BorderLayout.NORTH);
-		scrollConatiner.add(titleLabel, BorderLayout.CENTER);
+		scrollContainer.add(refreshJButton, BorderLayout.NORTH);
+		scrollContainer.add(titleLabel, BorderLayout.CENTER);
 		JPanel footerPanel = new JPanel(new BorderLayout());
 		footerPanel.add(missingPlayersJList, BorderLayout.NORTH);
 		footerPanel.add(copyJButton, BorderLayout.CENTER);
-		scrollConatiner.add(footerPanel, BorderLayout.SOUTH);
+		scrollContainer.add(footerPanel, BorderLayout.SOUTH);
 		this.add(jScrollPane);
 		this.setLocation(x, y);
 		this.setMaximumSize(Toolkit.getDefaultToolkit().getScreenSize());

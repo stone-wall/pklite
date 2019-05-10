@@ -1,16 +1,31 @@
-/*
- * Copyright (c) 2019. PKLite  - All Rights Reserved
- * Unauthorized modification, distribution, or possession of this source file, via any medium is strictly prohibited.
- * Proprietary and confidential. Refer to PKLite License file for more information on
- * full terms of this copyright and to determine what constitutes authorized use.
- * Written by PKLite(ST0NEWALL, others) <stonewall@thots.cc.usa>, 2019
+
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
  *
- */
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
 
 package net.runelite.client.plugins.pvptools;
 
-import java.awt.Color;
-import java.security.Key;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -42,28 +57,6 @@ public interface PvpToolsConfig extends Config
 		return true;
 	}
 
-	@ConfigItem(
-		keyName = "fallInHelper",
-		name = "Fall In Helper",
-		description = "Hides all non-friendly player entities other than the one that is attacking you.",
-		position = 5
-	)
-	default boolean fallInHelper()
-	{
-		return true;
-	}
-
-	@ConfigItem(
-		keyName = "hotkey",
-		name = "Fall In Hotkey",
-		description = "Turns the fall in helper on or off when you press this hotkey",
-		position = 6
-	)
-	default Keybind hotkey()
-	{
-		return Keybind.NOT_SET;
-	}
-	
 	@ConfigItem(
 		keyName = "renderSelfHotkey",
 		name = "Render Self Hotkey",

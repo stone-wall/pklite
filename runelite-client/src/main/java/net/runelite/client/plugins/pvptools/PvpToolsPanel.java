@@ -1,17 +1,32 @@
-/*
- * Copyright (c) 2019. PKLite  - All Rights Reserved
- * Unauthorized modification, distribution, or possession of this source file, via any medium is strictly prohibited.
- * Proprietary and confidential. Refer to PKLite License file for more information on
- * full terms of this copyright and to determine what constitutes authorized use.
- * Written by PKLite(ST0NEWALL, others) <stonewall@thots.cc.usa>, 2019
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
  *
- */
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
 
 package net.runelite.client.plugins.pvptools;
 
 import com.google.common.base.MoreObjects;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import javax.inject.Inject;
@@ -22,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.RuneLiteProperties;
-import net.runelite.client.plugins.info.JRichTextPane;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -32,7 +46,6 @@ public class PvpToolsPanel extends PluginPanel
 {
 
 	private final JLabel loggedLabel = new JLabel();
-	private final JRichTextPane emailLabel = new JRichTextPane();
 	public JLabel numCC = new JLabel();
 	public JLabel numOther = new JLabel();
 	public JLabel numMageJLabel = new JLabel(" ");
@@ -61,11 +74,10 @@ public class PvpToolsPanel extends PluginPanel
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 
 
-
-		JPanel versionPanel = new JPanel();
-		versionPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-		versionPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		versionPanel.setLayout(new GridLayout(0, 1));
+		JPanel playersPanel = new JPanel();
+		playersPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		playersPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		playersPanel.setLayout(new GridLayout(0, 1));
 
 		JPanel riskPanel = new JPanel();
 		riskPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -102,24 +114,20 @@ public class PvpToolsPanel extends PluginPanel
 		loggedLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
 		loggedLabel.setFont(smallFont);
 
-		emailLabel.setForeground(Color.WHITE);
-		emailLabel.setFont(smallFont);
+		playersPanel.add(numCC);
+		playersPanel.add(numOther);
+		playersPanel.add(numMageJLabel);
+		playersPanel.add(numRangeJLabel);
+		playersPanel.add(numMeleeJLabel);
 
-		versionPanel.add(numCC);
-		versionPanel.add(numOther);
-		versionPanel.add(numMageJLabel);
-		versionPanel.add(numRangeJLabel);
-		versionPanel.add(numMeleeJLabel);
-
-		versionPanel.add(Box.createGlue());
-		versionPanel.add(loggedLabel);
-		versionPanel.add(emailLabel);
+		playersPanel.add(Box.createGlue());
+		playersPanel.add(loggedLabel);
 
 		riskPanel.add(totalRiskLabel);
 		riskPanel.add(riskProtectingItem);
 		riskPanel.add(biggestItemLabel);
 
-		add(versionPanel, BorderLayout.NORTH);
+		add(playersPanel, BorderLayout.NORTH);
 		add(riskPanel, BorderLayout.CENTER);
 
 		currentPlayers.setVisible(false);
