@@ -10,6 +10,18 @@
  *
  ******************************************************************************/
 
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
 package net.runelite.client.plugins.pvptools;
 
 import com.google.inject.Provides;
@@ -36,6 +48,7 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
 import net.runelite.api.SkullIcon;
+import net.runelite.api.SpriteID;
 import net.runelite.api.events.ConfigChanged;
 import net.runelite.api.events.FocusChanged;
 import net.runelite.api.events.GameStateChanged;
@@ -47,6 +60,7 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.AsyncBufferedImage;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.SpriteManager;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -136,6 +150,9 @@ public class PvpToolsPlugin extends Plugin
 
 	@Inject
 	private PvpToolsConfig config;
+
+	@Inject
+	private SpriteManager spriteManager;
 
 	/**
 	 * HotKeyListener for assigned hotkey to toggle renderself
@@ -410,9 +427,13 @@ public class PvpToolsPlugin extends Plugin
 	 */
 	private void updatePrayerNumbers()
 	{
-		panel.numMageJLabel.setText(htmlLabel("Enemies Praying Mage: ", String.valueOf(overheadCount[0])));
-		panel.numRangeJLabel.setText(htmlLabel("Enemies Praying Range: ", String.valueOf(overheadCount[1])));
-		panel.numMeleeJLabel.setText(htmlLabel("Enemies Praying Melee: ", String.valueOf(overheadCount[2])));
+		spriteManager.addSpriteTo(panel.numMageJLabel, SpriteID.PRAYER_PROTECT_FROM_MAGIC, 0);
+		spriteManager.addSpriteTo(panel.numRangeJLabel, SpriteID.PRAYER_PROTECT_FROM_MISSILES, 0);
+		spriteManager.addSpriteTo(panel.numMeleeJLabel, SpriteID.PRAYER_PROTECT_FROM_MELEE, 0);
+
+		panel.numMageJLabel.setText(htmlLabel(": ", String.valueOf(overheadCount[0])));
+		panel.numRangeJLabel.setText(htmlLabel(": ", String.valueOf(overheadCount[1])));
+		panel.numMeleeJLabel.setText(htmlLabel(": ", String.valueOf(overheadCount[2])));
 		panel.numMageJLabel.repaint();
 		panel.numRangeJLabel.repaint();
 		panel.numMeleeJLabel.repaint();
