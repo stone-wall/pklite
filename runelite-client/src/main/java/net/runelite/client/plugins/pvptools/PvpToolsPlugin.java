@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright (c) 2019. PKLite
  * @see <a href="https://pklite.xyz>pklite</a>
@@ -195,6 +196,11 @@ public class PvpToolsPlugin extends Plugin
 		return missingMembers;
 	}
 
+	/**
+	 * Generates list for Current CC Members UI
+	 *
+	 * @return CopyOnWriteArrayList<String> of cc member names that are in current scene
+	 */
 	private CopyOnWriteArrayList<String> getCurrentMembers()
 	{
 		CopyOnWriteArrayList<Player> ccMembers = ClanChatPlugin.getClanMembers();
@@ -238,11 +244,9 @@ public class PvpToolsPlugin extends Plugin
 			.priority(5)
 			.panel(panel)
 			.build();
-
 		panel.missingPlayers.addActionListener(playersButtonActionListener);
 		panel.currentPlayers.addActionListener(currentPlayersActionListener);
 		clientToolbar.addNavigation(navButton);
-
 		if (config.missingPlayersEnabled())
 		{
 			panel.missingPlayers.setVisible(true);
@@ -376,7 +380,6 @@ public class PvpToolsPlugin extends Plugin
 			{
 				return;
 			}
-			final String target = Text.removeTags(event.getTarget()).toLowerCase();
 			if (attackHotKeyPressed && config.attackOptionsClan() || config.attackOptionsFriend() ||
 				config.levelRangeAttackOptions())
 			{
@@ -440,7 +443,7 @@ public class PvpToolsPlugin extends Plugin
 	}
 
 	/**
-	 *
+	 * Updates the count of nearby players that are and aren't in cc
 	 */
 	private void updatePlayers()
 	{
@@ -473,6 +476,9 @@ public class PvpToolsPlugin extends Plugin
 		}
 	}
 
+	/**
+	 * Updates the count of overhead prayers for players that aren't in cc and aren't attackable
+	 */
 	private void countOverHeads()
 	{
 		overheadCount = new int[]{0, 0, 0};
