@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
 /*
  * Copyright (c) 2018, Psikoi <https://github.com/psikoi>
  * Copyright (c) 2018, Adam <Adam@sigterm.info>
@@ -110,6 +122,8 @@ public class LootTrackerPlugin extends Plugin
 		11573, "Crystal Chest"
 	);
 
+	private LocalDatabase database;
+
 	@Inject
 	private ClientToolbar clientToolbar;
 
@@ -216,6 +230,7 @@ public class LootTrackerPlugin extends Plugin
 		ignoredItems = Text.fromCSV(config.getIgnoredItems());
 		panel = new LootTrackerPanel(this, itemManager, config);
 		spriteManager.getSpriteAsync(SpriteID.TAB_INVENTORY, 0, panel::loadHeaderIcon);
+		database = new LocalDatabase();
 
 		final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "panel_icon.png");
 
@@ -272,6 +287,16 @@ public class LootTrackerPlugin extends Plugin
 				return true;
 			});
 		}
+		else
+		{
+
+			Collection<LootTrackerRecord> lootRecords;
+			lootRecords = database.getAllRecords();
+			log.debug("Loaded {} data entries", lootRecords.size());
+
+			SwingUtilities.invokeLater(() -> panel.addRecords(lootRecords));
+
+		}
 	}
 
 	@Override
@@ -290,10 +315,11 @@ public class LootTrackerPlugin extends Plugin
 		final int combat = npc.getCombatLevel();
 		final LootTrackerItem[] entries = buildEntries(stack(items));
 		SwingUtilities.invokeLater(() -> panel.add(name, combat, entries));
-
+		LootRecord lootRecord = new LootRecord(name, LootRecordType.NPC, toGameItems(items), Instant.now());
+		database.insertLootRecord(convertToLootTrackerRecord(lootRecord));
 		if (lootTrackerClient != null && config.saveLoot())
 		{
-			LootRecord lootRecord = new LootRecord(name, LootRecordType.NPC, toGameItems(items), Instant.now());
+
 			lootTrackerClient.submit(lootRecord);
 		}
 	}
@@ -307,10 +333,11 @@ public class LootTrackerPlugin extends Plugin
 		final int combat = player.getCombatLevel();
 		final LootTrackerItem[] entries = buildEntries(stack(items));
 		SwingUtilities.invokeLater(() -> panel.add(name, combat, entries));
-
+		LootRecord lootRecord = new LootRecord(name, LootRecordType.PLAYER, toGameItems(items), Instant.now());
+		database.insertLootRecord(convertToLootTrackerRecord(lootRecord));
 		if (lootTrackerClient != null && config.saveLoot())
 		{
-			LootRecord lootRecord = new LootRecord(name, LootRecordType.PLAYER, toGameItems(items), Instant.now());
+
 			lootTrackerClient.submit(lootRecord);
 		}
 	}
@@ -553,4 +580,14 @@ public class LootTrackerPlugin extends Plugin
 
 		return trackerRecords;
 	}
+
+	private LootTrackerRecord convertToLootTrackerRecord(LootRecord lootRecord)
+	{
+		LootTrackerItem[] drops = lootRecord.getDrops().stream().map(itemStack ->
+			buildLootTrackerItem(itemStack.getId(), itemStack.getQty())
+		).toArray(LootTrackerItem[]::new);
+		return new LootTrackerRecord(lootRecord.getEventId(), lootRecord.getType().name(), drops,
+			lootRecord.getTime().getNano());
+	}
+
 }
