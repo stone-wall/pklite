@@ -10,6 +10,18 @@
  *
  ******************************************************************************/
 
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
 /*
  * Copyright (c) 2018, Psikoi <https://github.com/psikoi>
  * Copyright (c) 2018, Adam <Adam@sigterm.info>
@@ -72,7 +84,9 @@ import net.runelite.api.SpriteID;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ConfigChanged;
+import net.runelite.api.events.InteractingChanged;
 import net.runelite.api.events.ItemContainerChanged;
+import net.runelite.api.events.LocalPlayerDeath;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.client.account.AccountSession;
@@ -155,6 +169,8 @@ public class LootTrackerPlugin extends Plugin
 	private List<String> ignoredItems = new ArrayList<>();
 
 	private Multiset<Integer> inventorySnapshot;
+
+	private Multiset<Integer> itemsSnapshot;
 
 	@Getter(AccessLevel.PACKAGE)
 	private LootTrackerClient lootTrackerClient;
@@ -343,6 +359,12 @@ public class LootTrackerPlugin extends Plugin
 	}
 
 	@Subscribe
+	public void onLocalPlayerDeath(LocalPlayerDeath event)
+	{
+
+	}
+
+	@Subscribe
 	public void onWidgetLoaded(WidgetLoaded event)
 	{
 		final ItemContainer container;
@@ -477,6 +499,15 @@ public class LootTrackerPlugin extends Plugin
 		}
 	}
 
+	@Subscribe
+	public void onInteractingChanged(InteractingChanged event)
+	{
+		if (event.getSource() == client.getLocalPlayer() || event.getTarget() == client.getLocalPlayer())
+		{
+			takeItemsSnapshot();
+		}
+	}
+
 	private void takeInventorySnapshot()
 	{
 		final ItemContainer itemContainer = client.getItemContainer(InventoryID.INVENTORY);
@@ -485,6 +516,53 @@ public class LootTrackerPlugin extends Plugin
 			inventorySnapshot = HashMultiset.create();
 			Arrays.stream(itemContainer.getItems())
 					.forEach(item -> inventorySnapshot.add(item.getId(), item.getQuantity()));
+		}
+	}
+
+	private void takeItemsSnapshot()
+	{
+		final ItemContainer inventoryItemContainer = client.getItemContainer(InventoryID.INVENTORY);
+		final ItemContainer equipmentItemContainer = client.getItemContainer(InventoryID.EQUIPMENT);
+		itemsSnapshot = HashMultiset.create();
+
+		if (inventoryItemContainer != null)
+		{
+			Arrays.stream(inventoryItemContainer.getItems())
+				.forEach(item -> itemsSnapshot.add(item.getId(), item.getQuantity()));
+		}
+
+		if (equipmentItemContainer != null)
+		{
+			Arrays.stream(equipmentItemContainer.getItems())
+				.forEach(item -> itemsSnapshot.add(item.getId(), item.getQuantity()));
+		}
+	}
+
+	private void processDeath()
+	{
+		if (itemsSnapshot != null)
+		{
+
+			Multiset<Integer> currentItems = HashMultiset.create();
+			Arrays.stream(client.getItemContainer(InventoryID.INVENTORY).getItems())
+				.forEach(item -> currentItems.add(item.getId(), item.getQuantity()));
+
+			final Multiset<Integer> diff = Multisets.difference(currentItems, itemsSnapshot);
+
+			List<ItemStack> items = diff.entrySet().stream()
+				.map(e -> new ItemStack(e.getElement(), e.getCount(), client.getLocalPlayer().getLocalLocation()))
+				.collect(Collectors.toList());
+
+			final LootTrackerItem[] entries = buildEntries(stack(items));
+			SwingUtilities.invokeLater(() -> panel.add("Death", -1, entries));
+			LootRecord lootRecord = new LootRecord("Death", LootRecordType.PLAYER, toGameItems(items), Instant.now());
+			database.insertLootRecord(convertToLootTrackerRecord(lootRecord));
+			if (lootTrackerClient != null && config.saveLoot())
+			{
+				lootTrackerClient.submit(lootRecord);
+			}
+
+			itemsSnapshot = null;
 		}
 	}
 
@@ -556,6 +634,28 @@ public class LootTrackerPlugin extends Plugin
 	{
 		return itemStacks.stream()
 			.map(itemStack -> buildLootTrackerItem(itemStack.getId(), itemStack.getQuantity()))
+			.toArray(LootTrackerItem[]::new);
+	}
+
+	private LootTrackerItem buildLootTrackerDeathItem(int itemId, int quantity)
+	{
+		final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+		final int realItemId = itemComposition.getNote() != -1 ? itemComposition.getLinkedNoteId() : itemId;
+		final long price = -1 * ((long) itemManager.getItemPrice(realItemId) * (long) quantity);
+		final boolean ignored = ignoredItems.contains(itemComposition.getName());
+
+		return new LootTrackerItem(
+			itemId,
+			itemComposition.getName(),
+			quantity,
+			price,
+			ignored);
+	}
+
+	private LootTrackerItem[] buildDeathEntries(final Collection<ItemStack> itemStacks)
+	{
+		return itemStacks.stream()
+			.map(itemStack -> buildLootTrackerDeathItem(itemStack.getId(), itemStack.getQuantity()))
 			.toArray(LootTrackerItem[]::new);
 	}
 
