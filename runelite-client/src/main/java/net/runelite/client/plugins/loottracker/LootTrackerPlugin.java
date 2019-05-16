@@ -22,6 +22,18 @@
  *
  ******************************************************************************/
 
+/*******************************************************************************
+ * Copyright (c) 2019. PKLite
+ * @see <a href="https://pklite.xyz>pklite</a>
+ *  Redistributions and modifications of this software are permitted as long as this notice remains in its
+ *  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+ *  about this software, please direct all inquiries directly to the following authors:
+ *
+ *   PKLite discord: https://discord.gg/Dp3HuFM
+ *   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+ *
+ ******************************************************************************/
+
 /*
  * Copyright (c) 2018, Psikoi <https://github.com/psikoi>
  * Copyright (c) 2018, Adam <Adam@sigterm.info>
@@ -361,7 +373,7 @@ public class LootTrackerPlugin extends Plugin
 	@Subscribe
 	public void onLocalPlayerDeath(LocalPlayerDeath event)
 	{
-
+		processDeath();
 	}
 
 	@Subscribe

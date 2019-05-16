@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright (c) 2019. PKLite
+  ~ @see <a href="https://pklite.xyz>pklite</a>
+  ~  Redistributions and modifications of this software are permitted as long as this notice remains in its
+  ~  original unmodified state at the top of this file.  If there are any questions comments, or feedback
+  ~  about this software, please direct all inquiries directly to the following authors:
+  ~
+  ~   PKLite discord: https://discord.gg/Dp3HuFM
+  ~   Written by PKLite(ST0NEWALL, others) <stonewall@pklite.xyz>, 2019
+  ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
 <!--
  Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
  All rights reserved.
@@ -131,6 +143,7 @@
 		<module>http-service</module>
 		<module>protocol-api</module>
 		<module>protocol</module>
+		<module>specbar</module>
 	</modules>
 
 	<dependencyManagement>
