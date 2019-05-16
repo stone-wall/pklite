@@ -522,35 +522,35 @@ public class ConfigPanel extends PluginPanel
 					item.add(dimensionPanel, BorderLayout.EAST);
 				}
 
-				if (cid.getType().isEnum())
+			if (cid.getType().isEnum())
+			{
+				Class<? extends Enum> type = (Class<? extends Enum>) cid.getType();
+				JComboBox box = new JComboBox(type.getEnumConstants());
+				box.setPreferredSize(new Dimension(box.getPreferredSize().width, 25));
+				box.setRenderer(new ComboBoxListRenderer());
+				box.setForeground(Color.WHITE);
+				box.setFocusable(false);
+				box.setPrototypeDisplayValue("XXXXXXXX"); //sorry but this is the way to keep the size of the combobox in check.
+				try
 				{
-					Class<? extends Enum> type = (Class<? extends Enum>) cid.getType();
-					JComboBox box = new JComboBox(type.getEnumConstants());
-					box.setPreferredSize(new Dimension(box.getPreferredSize().width, 25));
-					box.setRenderer(new ComboBoxListRenderer());
-					box.setForeground(Color.WHITE);
-					box.setFocusable(false);
-					box.setPrototypeDisplayValue("XXXXXXXX"); //sorry but this is the way to keep the size of the combobox in check.
-					try
-					{
-						Enum selectedItem = Enum.valueOf(type, configManager.getConfiguration(cd.getGroup().value(), cid.getItem().keyName()));
-						box.setSelectedItem(selectedItem);
-						box.setToolTipText(selectedItem.toString());
-					}
-					catch (IllegalArgumentException ex)
-					{
-						log.debug("invalid seleced item", ex);
-					}
-					box.addItemListener(e ->
-					{
-						if (e.getStateChange() == ItemEvent.SELECTED)
-						{
-							changeConfiguration(listItem, config, box, cd, cid);
-							box.setToolTipText(box.getSelectedItem().toString());
-						}
-					});
-					item.add(box, BorderLayout.EAST);
+					Enum selectedItem = Enum.valueOf(type, configManager.getConfiguration(cd.getGroup().value(), cid.getItem().keyName()));
+					box.setSelectedItem(selectedItem);
+					box.setToolTipText(Text.titleCase(selectedItem));
 				}
+				catch (IllegalArgumentException ex)
+				{
+					log.debug("invalid seleced item", ex);
+				}
+				box.addItemListener(e ->
+				{
+					if (e.getStateChange() == ItemEvent.SELECTED)
+					{
+						changeConfiguration(listItem, config, box, cd, cid);
+						box.setToolTipText(Text.titleCase((Enum) box.getSelectedItem()));
+					}
+				});
+				item.add(box, BorderLayout.EAST);
+			}
 
 				if (cid.getType() == Keybind.class || cid.getType() == ModifierlessKeybind.class)
 				{
